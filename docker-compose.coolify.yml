@@ -1,0 +1,107 @@
+# Docker Compose para Coolify - Sistema CRT
+# Este archivo será usado automáticamente por Coolify
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: sistema-crt-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sistema_crt
+      POSTGRES_USER: crt_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sistema_crt
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crt_user -d sistema_crt"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "coolify.managed=true"
+      - "coolify.service=database"
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sistema-crt-backend
+    restart: unless-stopped
+    environment:
+      # Variables dinámicas que Coolify completará automáticamente
+      DATABASE_URL: postgresql://crt_user:${POSTGRES_PASSWORD:-changeme}@postgres:5432/sistema_crt
+      JWT_SECRET: ${JWT_SECRET:-default-jwt-secret-change-in-production}
+      NODE_ENV: production
+      PORT: 3001
+      MAX_FILE_SIZE: 10485760
+      UPLOAD_PATH: ./uploads
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - sistema_crt
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "coolify.managed=true"
+      - "coolify.service=backend"
+      - "coolify.domain=api.${COOLIFY_FQDN:-localhost}"
+      - "coolify.port=3001"
+      - "coolify.healthcheck.path=/health"
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: https://api.${COOLIFY_FQDN:-localhost}/api
+    container_name: sistema-crt-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: https://api.${COOLIFY_FQDN:-localhost}/api
+    networks:
+      - sistema_crt
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "coolify.managed=true"
+      - "coolify.service=frontend"
+      - "coolify.domain=${COOLIFY_FQDN:-localhost}"
+      - "coolify.port=3000"
+      - "coolify.healthcheck.path=/health"
+
+volumes:
+  postgres_data:
+    driver: local
+    labels:
+      - "coolify.managed=true"
+  uploads_data:
+    driver: local
+    labels:
+      - "coolify.managed=true"
+
+networks:
+  sistema_crt:
+    driver: bridge
+    labels:
+      - "coolify.managed=true"

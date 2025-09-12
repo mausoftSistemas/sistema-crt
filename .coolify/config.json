@@ -1,0 +1,158 @@
+{
+  "project": {
+    "name": "sistema-crt",
+    "description": "Sistema CRT - Consultora de Riesgos del Trabajo",
+    "version": "1.0.0",
+    "repository": "https://github.com/mausoftSistemas/sistema-crt",
+    "branch": "main"
+  },
+  "services": [
+    {
+      "name": "postgres",
+      "type": "database",
+      "image": "postgres:15-alpine",
+      "auto_deploy": true,
+      "environment_variables": [
+        {
+          "key": "POSTGRES_DB",
+          "value": "sistema_crt",
+          "is_build_time": false
+        },
+        {
+          "key": "POSTGRES_USER", 
+          "value": "crt_user",
+          "is_build_time": false
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "value": "{{GENERATE_PASSWORD}}",
+          "is_build_time": false,
+          "is_secret": true
+        }
+      ],
+      "volumes": [
+        {
+          "name": "postgres_data",
+          "mount_path": "/var/lib/postgresql/data"
+        }
+      ],
+      "healthcheck": {
+        "enabled": true,
+        "test": "pg_isready -U crt_user -d sistema_crt",
+        "interval": 30,
+        "timeout": 10,
+        "retries": 3
+      }
+    },
+    {
+      "name": "backend",
+      "type": "application",
+      "dockerfile": "backend/Dockerfile",
+      "build_context": "backend",
+      "auto_deploy": true,
+      "port": 3001,
+      "domains": [
+        {
+          "domain": "{{FQDN}}",
+          "path": "/api"
+        }
+      ],
+      "environment_variables": [
+        {
+          "key": "DATABASE_URL",
+          "value": "postgresql://crt_user:{{SERVICE_postgres_POSTGRES_PASSWORD}}@{{SERVICE_postgres_INTERNAL_IP}}:5432/sistema_crt",
+          "is_build_time": false
+        },
+        {
+          "key": "JWT_SECRET",
+          "value": "{{GENERATE_SECRET}}",
+          "is_build_time": false,
+          "is_secret": true
+        },
+        {
+          "key": "NODE_ENV",
+          "value": "production",
+          "is_build_time": false
+        },
+        {
+          "key": "PORT",
+          "value": "3001",
+          "is_build_time": false
+        },
+        {
+          "key": "MAX_FILE_SIZE",
+          "value": "10485760",
+          "is_build_time": false
+        },
+        {
+          "key": "UPLOAD_PATH",
+          "value": "./uploads",
+          "is_build_time": false
+        }
+      ],
+      "volumes": [
+        {
+          "name": "uploads_data",
+          "mount_path": "/app/uploads"
+        }
+      ],
+      "depends_on": ["postgres"],
+      "healthcheck": {
+        "enabled": true,
+        "path": "/health",
+        "interval": 30,
+        "timeout": 10,
+        "retries": 3
+      },
+      "post_deployment_commands": [
+        "npx prisma migrate deploy",
+        "npm run seed"
+      ]
+    },
+    {
+      "name": "frontend",
+      "type": "application", 
+      "dockerfile": "frontend/Dockerfile",
+      "build_context": "frontend",
+      "auto_deploy": true,
+      "port": 3000,
+      "domains": [
+        {
+          "domain": "{{FQDN}}",
+          "path": "/"
+        }
+      ],
+      "environment_variables": [
+        {
+          "key": "VITE_API_URL",
+          "value": "https://{{FQDN}}/api",
+          "is_build_time": true
+        }
+      ],
+      "depends_on": ["backend"],
+      "healthcheck": {
+        "enabled": true,
+        "path": "/health",
+        "interval": 30,
+        "timeout": 10,
+        "retries": 3
+      }
+    }
+  ],
+  "volumes": [
+    {
+      "name": "postgres_data",
+      "driver": "local"
+    },
+    {
+      "name": "uploads_data", 
+      "driver": "local"
+    }
+  ],
+  "networks": [
+    {
+      "name": "sistema_crt",
+      "driver": "bridge"
+    }
+  ]
+}

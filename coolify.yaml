@@ -1,0 +1,97 @@
+# Configuración automática para Coolify - Sistema CRT
+# Este archivo será detectado automáticamente por Coolify
+
+apiVersion: v1
+kind: Application
+metadata:
+  name: sistema-crt
+  description: "Sistema CRT - Consultora de Riesgos del Trabajo"
+  version: "1.0.0"
+  
+spec:
+  # Configuración del proyecto
+  project:
+    name: sistema-crt
+    repository: https://github.com/mausoftSistemas/sistema-crt
+    branch: main
+    auto_deploy: true
+    
+  # Servicios que se crearán automáticamente
+  services:
+    # Base de datos PostgreSQL
+    - name: postgres
+      type: database
+      image: postgres:15-alpine
+      environment:
+        POSTGRES_DB: sistema_crt
+        POSTGRES_USER: crt_user
+        POSTGRES_PASSWORD: "{{GENERATE_PASSWORD}}"
+      volumes:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+      healthcheck:
+        command: ["pg_isready", "-U", "crt_user", "-d", "sistema_crt"]
+        interval: 30s
+        timeout: 10s
+        retries: 3
+        
+    # Backend API
+    - name: backend
+      type: application
+      dockerfile: backend/Dockerfile
+      context: backend
+      port: 3001
+      environment:
+        DATABASE_URL: "postgresql://crt_user:{{SERVICE.postgres.POSTGRES_PASSWORD}}@{{SERVICE.postgres.INTERNAL_IP}}:5432/sistema_crt"
+        JWT_SECRET: "{{GENERATE_SECRET}}"
+        NODE_ENV: production
+        PORT: "3001"
+        MAX_FILE_SIZE: "10485760"
+        UPLOAD_PATH: "./uploads"
+      volumes:
+        - name: uploads-data
+          mountPath: /app/uploads
+      dependsOn:
+        - postgres
+      domains:
+        - path: /api
+          stripPrefix: false
+      healthcheck:
+        path: /health
+        interval: 30s
+        timeout: 10s
+        retries: 3
+      postDeploy:
+        - npx prisma migrate deploy
+        - npm run seed
+        
+    # Frontend React
+    - name: frontend
+      type: application
+      dockerfile: frontend/Dockerfile
+      context: frontend
+      port: 3000
+      environment:
+        VITE_API_URL: "https://{{FQDN}}/api"
+      dependsOn:
+        - backend
+      domains:
+        - path: /
+          stripPrefix: false
+      healthcheck:
+        path: /health
+        interval: 30s
+        timeout: 10s
+        retries: 3
+        
+  # Volúmenes persistentes
+  volumes:
+    - name: postgres-data
+      driver: local
+    - name: uploads-data
+      driver: local
+      
+  # Configuración de red
+  networks:
+    - name: sistema-crt
+      driver: bridge

@@ -36,10 +36,58 @@ sistema-crt/
 └── docker-compose.yml
 ```
 
-## Instalación y Desarrollo
+## 🚀 Inicio Rápido
 
-Ver documentación específica en cada carpeta (backend/frontend).
+### Opción 1: Configuración Automática
+```bash
+# Ejecutar script de inicialización
+chmod +x scripts/init-project.sh
+./scripts/init-project.sh
+```
 
-## Deployment
+### Opción 2: Docker Compose (Desarrollo)
+```bash
+# Copiar variables de entorno
+cp .env.example .env
 
-El proyecto está preparado para desplegarse en Coolify con Docker.
+# Iniciar servicios
+docker-compose up -d
+
+# Acceder a la aplicación
+# Frontend: http://localhost:3000
+# API: http://localhost:3001
+```
+
+### Opción 3: Desarrollo Local
+```bash
+# Backend
+cd backend
+npm install
+npm run dev
+
+# Frontend (nueva terminal)
+cd frontend  
+npm install
+npm run dev
+```
+
+## 🌐 Deployment en Coolify
+
+### Deployment Completamente Automático
+
+El proyecto incluye configuración automática para Coolify:
+
+- ✅ **Variables dinámicas** generadas automáticamente
+- ✅ **Servicios preconfigurados** (PostgreSQL, Backend, Frontend)
+- ✅ **Dependencias automáticas** entre servicios
+- ✅ **Post-deployment automático** (migraciones + seed)
+- ✅ **Health checks** configurados
+- ✅ **SSL automático** con Let's Encrypt
+
+**Simplemente:**
+1. Conecta tu repositorio GitHub a Coolify
+2. Coolify detecta automáticamente la configuración
+3. Todos los servicios se despliegan automáticamente
+4. ¡Listo para usar!
+
+Ver guía completa: [docs/DEPLOYMENT_COOLIFY.md](docs/DEPLOYMENT_COOLIFY.md)

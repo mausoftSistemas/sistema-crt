@@ -1,0 +1,109 @@
+{
+  "name": "sistema-crt",
+  "description": "Sistema CRT - Consultora de Riesgos del Trabajo",
+  "version": "1.0.0",
+  "services": {
+    "database": {
+      "type": "postgresql",
+      "version": "15",
+      "name": "sistema-crt-db",
+      "environment": {
+        "POSTGRES_DB": "sistema_crt",
+        "POSTGRES_USER": "crt_user",
+        "POSTGRES_PASSWORD": "{{GENERATED_PASSWORD_32}}"
+      },
+      "volumes": [
+        {
+          "source": "postgres_data",
+          "target": "/var/lib/postgresql/data"
+        }
+      ],
+      "healthcheck": {
+        "test": ["CMD-SHELL", "pg_isready -U crt_user -d sistema_crt"],
+        "interval": "30s",
+        "timeout": "10s",
+        "retries": 3
+      }
+    },
+    "backend": {
+      "type": "application",
+      "name": "sistema-crt-backend",
+      "source": {
+        "type": "github",
+        "repository": "mausoftSistemas/sistema-crt",
+        "branch": "main",
+        "buildpack": "nodejs",
+        "dockerfile": "backend/Dockerfile",
+        "context": "backend"
+      },
+      "environment": {
+        "DATABASE_URL": "postgresql://crt_user:{{SERVICE:database:POSTGRES_PASSWORD}}@{{SERVICE:database:INTERNAL_HOST}}:5432/sistema_crt",
+        "JWT_SECRET": "{{GENERATED_SECRET_64}}",
+        "NODE_ENV": "production",
+        "PORT": "3001",
+        "MAX_FILE_SIZE": "10485760",
+        "UPLOAD_PATH": "./uploads"
+      },
+      "volumes": [
+        {
+          "source": "uploads_data",
+          "target": "/app/uploads"
+        }
+      ],
+      "depends_on": ["database"],
+      "domains": [
+        {
+          "domain": "{{PROJECT_DOMAIN}}",
+          "subdomain": "api"
+        }
+      ],
+      "healthcheck": {
+        "path": "/health",
+        "port": 3001
+      },
+      "post_deploy": [
+        "npx prisma migrate deploy",
+        "npm run seed"
+      ]
+    },
+    "frontend": {
+      "type": "application",
+      "name": "sistema-crt-frontend",
+      "source": {
+        "type": "github",
+        "repository": "mausoftSistemas/sistema-crt",
+        "branch": "main",
+        "buildpack": "nodejs",
+        "dockerfile": "frontend/Dockerfile",
+        "context": "frontend"
+      },
+      "environment": {
+        "VITE_API_URL": "https://api.{{PROJECT_DOMAIN}}/api"
+      },
+      "depends_on": ["backend"],
+      "domains": [
+        {
+          "domain": "{{PROJECT_DOMAIN}}",
+          "subdomain": "app"
+        }
+      ],
+      "healthcheck": {
+        "path": "/health",
+        "port": 3000
+      }
+    }
+  },
+  "volumes": {
+    "postgres_data": {
+      "driver": "local"
+    },
+    "uploads_data": {
+      "driver": "local"
+    }
+  },
+  "networks": {
+    "sistema_crt": {
+      "driver": "bridge"
+    }
+  }
+}
