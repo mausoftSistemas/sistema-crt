@@ -1,7 +1,7 @@
 FROM node:18-alpine
 
-# Install dumb-init, wget and postgresql-client for proper signal handling and health checks
-RUN apk add --no-cache dumb-init wget postgresql-client
+# Install dumb-init, wget, postgresql-client and openssl for proper signal handling and health checks
+RUN apk add --no-cache dumb-init wget postgresql-client openssl openssl-dev
 
 # Create app directory
 WORKDIR /app
@@ -43,4 +43,4 @@ EXPOSE 3001
 
 # Start the application with dumb-init
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["sh", "-c", "echo 'Iniciando backend...' && npx prisma migrate deploy && echo 'Migraciones OK' && npm run seed && echo 'Seed OK' && npm start"]
+CMD ["sh", "-c", "echo 'Iniciando Sistema CRT Backend...' && npx prisma db push && echo 'Base de datos sincronizada' && npm run seed && echo 'Datos iniciales OK' && npm start"]
