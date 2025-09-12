@@ -39,7 +39,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log('🔐 Intentando login con:', { email, baseURL: api.defaults.baseURL })
       const response = await api.post('/auth/login', { email, password })
+      console.log('✅ Login exitoso:', response.data)
       const { user, token } = response.data
       
       localStorage.setItem('token', token)
@@ -48,9 +50,12 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true }
     } catch (error) {
+      console.error('❌ Error en login:', error)
+      console.error('❌ Error response:', error.response?.data)
+      console.error('❌ Error status:', error.response?.status)
       return { 
         success: false, 
-        error: error.response?.data?.error || 'Error al iniciar sesión' 
+        error: error.response?.data?.error || error.message || 'Error al iniciar sesión' 
       }
     }
   }

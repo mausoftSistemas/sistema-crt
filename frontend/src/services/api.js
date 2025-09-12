@@ -1,5 +1,9 @@
 import axios from 'axios'
 
+// Debug: Mostrar la URL de la API
+console.log('🔧 VITE_API_URL:', import.meta.env.VITE_API_URL)
+console.log('🔧 API Base URL:', import.meta.env.VITE_API_URL || 'http://localhost:3001/api')
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
   timeout: 10000,
