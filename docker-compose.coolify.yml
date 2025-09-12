@@ -68,17 +68,17 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: https://api.${COOLIFY_FQDN:-localhost}/api
+        VITE_API_URL: /api
     container_name: sistema-crt-frontend
     restart: unless-stopped
     environment:
-      VITE_API_URL: https://api.${COOLIFY_FQDN:-localhost}/api
+      VITE_API_URL: /api
     networks:
       - sistema_crt
     depends_on:
       - backend
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -86,8 +86,32 @@ services:
     labels:
       - "coolify.managed=true"
       - "coolify.service=frontend"
+
+  # Nginx Proxy Reverso
+  nginx:
+    image: nginx:alpine
+    container_name: sistema-crt-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - sistema_crt
+    depends_on:
+      - backend
+      - frontend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "coolify.managed=true"
+      - "coolify.service=proxy"
       - "coolify.domain=${COOLIFY_FQDN:-localhost}"
-      - "coolify.port=3000"
+      - "coolify.port=80"
       - "coolify.healthcheck.path=/health"
 
 volumes:
