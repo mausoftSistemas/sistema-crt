@@ -19,17 +19,20 @@ RUN npm install && npm cache clean --force
 # Copy source code
 COPY . .
 
-# Generate Prisma client
-RUN npx prisma generate
-
 # Make start script executable
 RUN chmod +x start.sh
 
 # Create uploads directory with proper permissions
 RUN mkdir -p uploads && chown -R nodejs:nodejs uploads && chown nodejs:nodejs start.sh
 
+# Change ownership of node_modules and app directory
+RUN chown -R nodejs:nodejs /app
+
 # Change to non-root user
 USER nodejs
+
+# Generate Prisma client (después de cambiar usuario)
+RUN npx prisma generate
 
 # Expose port
 EXPOSE 3001

@@ -24,15 +24,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
-
-# Change ownership of nginx files
-RUN chown -R nodejs:nodejs /var/cache/nginx /var/run /var/log/nginx /usr/share/nginx/html
-
-# Switch to non-root user
-USER nodejs
+# No cambiar a usuario no-root para evitar problemas de permisos con nginx
 
 # Expose port
 EXPOSE 3000
