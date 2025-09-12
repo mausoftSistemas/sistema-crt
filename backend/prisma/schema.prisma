@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(LECTOR)
+  empresaId String?
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Empresa {
+  id             String           @id @default(cuid())
+  nombre         String
+  cuit           String           @unique
+  direccion      String?
+  telefono       String?
+  email          String?
+  esRecurrente   Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  establecimientos Establecimiento[]
+  users          User[]
+  documentos     Documento[]
+
+  @@map("empresas")
+}
+
+model Establecimiento {
+  id        String     @id @default(cuid())
+  nombre    String
+  direccion String?
+  telefono  String?
+  empresaId String
+  empresa   Empresa    @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  personas  Persona[]
+  documentos Documento[]
+
+  @@map("establecimientos")
+}
+
+model Persona {
+  id               String          @id @default(cuid())
+  nombre           String
+  apellido         String
+  dni              String          @unique
+  email            String?
+  telefono         String?
+  cargo            String?
+  establecimientoId String
+  establecimiento  Establecimiento @relation(fields: [establecimientoId], references: [id], onDelete: Cascade)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  documentos       DocumentoPersona[]
+
+  @@map("personas")
+}
+
+model Categoria {
+  id         String      @id @default(cuid())
+  nombre     String      @unique
+  descripcion String?
+  color      String?     @default("#3B82F6")
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  documentos Documento[]
+
+  @@map("categorias")
+}
+
+model TipoDocumento {
+  id         String      @id @default(cuid())
+  nombre     String      @unique
+  descripcion String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  documentos Documento[]
+
+  @@map("tipos_documento")
+}
+
+model Documento {
+  id                String             @id @default(cuid())
+  nombre            String
+  descripcion       String?
+  nombreArchivo     String
+  rutaArchivo       String
+  fechaVencimiento  DateTime?
+  categoriaId       String
+  tipoDocumentoId   String
+  empresaId         String?
+  establecimientoId String?
+  categoria         Categoria          @relation(fields: [categoriaId], references: [id])
+  tipoDocumento     TipoDocumento      @relation(fields: [tipoDocumentoId], references: [id])
+  empresa           Empresa?           @relation(fields: [empresaId], references: [id])
+  establecimiento   Establecimiento?   @relation(fields: [establecimientoId], references: [id])
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  personas          DocumentoPersona[]
+
+  @@map("documentos")
+}
+
+model DocumentoPersona {
+  id          String    @id @default(cuid())
+  documentoId String
+  personaId   String
+  documento   Documento @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  persona     Persona   @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([documentoId, personaId])
+  @@map("documento_personas")
+}
+
+enum Role {
+  ADMIN
+  LECTOR
+  TECNICO
+  TECNICO_ADMIN
+}
