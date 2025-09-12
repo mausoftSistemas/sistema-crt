@@ -67,11 +67,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://gwc4k0c0c4ww0sgw0gcoksws.38.242.212.55.sslip.io/api
+        VITE_API_URL: http://gwc4k0c0c4ww0sgw0gcoksws.38.242.212.55.sslip.io
     container_name: sistema-crt-frontend
     restart: unless-stopped
     environment:
-      VITE_API_URL: http://gwc4k0c0c4ww0sgw0gcoksws.38.242.212.55.sslip.io/api
+      VITE_API_URL: http://gwc4k0c0c4ww0sgw0gcoksws.38.242.212.55.sslip.io
     networks:
       - sistema_crt
     depends_on:
