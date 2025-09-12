@@ -20,7 +20,10 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet());
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-domain.com'] 
+    ? [
+        'http://iog4wos4g04sg88sgos0kcks.38.242.212.55.sslip.io',
+        'https://iog4wos4g04sg88sgos0kcks.38.242.212.55.sslip.io'
+      ]
     : ['http://localhost:3000'],
   credentials: true
 }));
