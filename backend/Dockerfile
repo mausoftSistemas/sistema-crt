@@ -13,8 +13,8 @@ RUN adduser -S nodejs -u 1001
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install dependencies (sin --only=production para evitar problemas)
+RUN npm install && npm cache clean --force
 
 # Copy source code
 COPY . .
