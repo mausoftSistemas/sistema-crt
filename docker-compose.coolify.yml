@@ -48,17 +48,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    # Deshabilitar health check temporalmente
-    # healthcheck:
-    #   test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
-    #   start_period: 60s
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     labels:
       - "coolify.managed=true"
       - "coolify.service=backend"
-      - "coolify.domain=api.${COOLIFY_FQDN:-localhost}"
       - "coolify.port=3001"
       - "coolify.healthcheck.path=/health"
 
@@ -76,7 +74,8 @@ services:
     networks:
       - sistema_crt
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
       interval: 30s
@@ -97,14 +96,16 @@ services:
     networks:
       - sistema_crt
     depends_on:
-      - backend
-      - frontend
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 30s
     labels:
       - "coolify.managed=true"
       - "coolify.service=proxy"
