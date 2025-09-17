@@ -21,8 +21,8 @@ app.use(helmet());
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? [
-        'http://iog4wos4g04sg88sgos0kcks.38.242.212.55.sslip.io',
-        'https://iog4wos4g04sg88sgos0kcks.38.242.212.55.sslip.io'
+        'http://sistemacrt.oloapp.site',
+        'https://sistemacrt.oloapp.site'
       ]
     : ['http://localhost:3000'],
   credentials: true
