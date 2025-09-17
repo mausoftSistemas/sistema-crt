@@ -58,7 +58,7 @@ services:
       - "coolify.managed=true"
       - "coolify.service=backend"
       - "coolify.port=3001"
-      - "coolify.domain=backcrt.oloapp.site"
+      - "coolify.domain=icw0skgwkooggsw0s4kwwsks.38.242.212.55.sslip.io"
       - "coolify.healthcheck.path=/health"
 
   # Frontend React (Servicio Principal)
@@ -67,11 +67,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://backcrt.oloapp.site/api
+        VITE_API_URL: http://icw0skgwkooggsw0s4kwwsks.38.242.212.55.sslip.io/api
     container_name: sistema-crt-frontend
     restart: unless-stopped
     environment:
-      VITE_API_URL: http://backcrt.oloapp.site/api
+      VITE_API_URL: http://icw0skgwkooggsw0s4kwwsks.38.242.212.55.sslip.io/api
     networks:
       - sistema_crt
     depends_on:
@@ -80,7 +80,7 @@ services:
       - "coolify.managed=true"
       - "coolify.service=frontend"
       - "coolify.port=3000"
-      - "coolify.domain=sistemacrt.oloapp.site"
+      - "coolify.domain=r448k04sg08wwkkkogks40s4.38.242.212.55.sslip.io"
       - "coolify.healthcheck.path=/health"
 
 

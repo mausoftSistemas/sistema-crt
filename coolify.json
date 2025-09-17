@@ -53,7 +53,7 @@
       "depends_on": ["database"],
       "domains": [
         {
-          "domain": "backcrt.oloapp.site"
+          "domain": "icw0skgwkooggsw0s4kwwsks.38.242.212.55.sslip.io"
         }
       ],
       "healthcheck": {
@@ -77,12 +77,12 @@
         "context": "frontend"
       },
       "environment": {
-        "VITE_API_URL": "http://backcrt.oloapp.site/api"
+        "VITE_API_URL": "http://icw0skgwkooggsw0s4kwwsks.38.242.212.55.sslip.io/api"
       },
       "depends_on": ["backend"],
       "domains": [
         {
-          "domain": "sistemacrt.oloapp.site"
+          "domain": "r448k04sg08wwkkkogks40s4.38.242.212.55.sslip.io"
         }
       ],
       "healthcheck": {
