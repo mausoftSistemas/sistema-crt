@@ -1,4 +1,4 @@
-# Build stage
+# Build stage - Force rebuild for new domains
 FROM node:18-alpine AS builder
 
 WORKDIR /app
