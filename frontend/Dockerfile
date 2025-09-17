@@ -22,7 +22,8 @@ RUN npm run build
 # Production stage - Usar serve en lugar de nginx
 FROM node:18-alpine
 
-# Install serve globally
+# Install serve globally and wget for health checks
+RUN apk add --no-cache wget
 RUN npm install -g serve
 
 # Copy built app from builder stage
@@ -33,7 +34,9 @@ WORKDIR /app
 # Expose port
 EXPOSE 3000
 
-# Sin health check para evitar problemas con Coolify
+# Add health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
 
 # Start serve on port 3000
 CMD ["serve", "-s", ".", "-l", "3000"]
