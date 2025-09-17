@@ -67,11 +67,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://backcrt.oloapp.site
+        VITE_API_URL: ${SERVICE_URL_BACKEND}
     container_name: sistema-crt-frontend
     restart: unless-stopped
     environment:
-      VITE_API_URL: http://backcrt.oloapp.site
+      VITE_API_URL: ${SERVICE_URL_BACKEND}
     networks:
       - sistema_crt
     depends_on:
