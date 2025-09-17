@@ -53,8 +53,7 @@
       "depends_on": ["database"],
       "domains": [
         {
-          "domain": "{{PROJECT_DOMAIN}}",
-          "subdomain": "api"
+          "domain": "backcrt.oloapp.site"
         }
       ],
       "healthcheck": {
@@ -78,13 +77,12 @@
         "context": "frontend"
       },
       "environment": {
-        "VITE_API_URL": "https://api.{{PROJECT_DOMAIN}}/api"
+        "VITE_API_URL": "http://backcrt.oloapp.site/api"
       },
       "depends_on": ["backend"],
       "domains": [
         {
-          "domain": "{{PROJECT_DOMAIN}}",
-          "subdomain": "app"
+          "domain": "sistemacrt.oloapp.site"
         }
       ],
       "healthcheck": {
