@@ -33,9 +33,7 @@ WORKDIR /app
 # Expose port
 EXPOSE 3000
 
-# Health check simplificado
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
+# Sin health check para evitar problemas con Coolify
 
 # Start serve on port 3000
 CMD ["serve", "-s", ".", "-l", "3000"]
