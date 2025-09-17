@@ -80,6 +80,7 @@ services:
       - "coolify.managed=true"
       - "coolify.service=frontend"
       - "coolify.port=3000"
+      - "coolify.domain=${COOLIFY_FQDN:-localhost}"
 
 
 
