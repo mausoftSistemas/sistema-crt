@@ -12,9 +12,8 @@ RUN npm install
 # Copy source code
 COPY frontend/ .
 
-# Accept build argument
-ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
+# Set default API URL (will be overridden by environment variable)
+ENV VITE_API_URL=https://supabase-web-crt.3150ox.easypanel.host
 
 # Build the application
 RUN npm run build
