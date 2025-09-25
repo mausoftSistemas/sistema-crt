@@ -1,0 +1,98 @@
+services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bd_crt
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: d8aeaf0c9abd6c2978ee
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - crt_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bd_crt"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Backend API
+  backend:
+    build: 
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    expose:
+      - "3001"
+    environment:
+      # Base de datos
+      DATABASE_URL: postgres://postgres:d8aeaf0c9abd6c2978ee@postgres:5432/bd_crt?sslmode=disable
+      
+      # Configuración de la aplicación
+      NODE_ENV: production
+      PORT: 3001
+      JWT_SECRET: crtJujuySistema2024#
+      
+      # Configuración de archivos
+      MAX_FILE_SIZE: 10485760
+      UPLOAD_PATH: /app/uploads
+      
+      # Configuración de CORS (ajustar según tu dominio)
+      CORS_ORIGIN: "*"
+      
+      # Configuración de logs
+      LOG_LEVEL: info
+      
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+    networks:
+      - crt_network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend
+  frontend:
+    build: 
+      context: .
+      dockerfile: frontend/Dockerfile
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      # URL del API (ajustar según tu configuración de EasyPanel)
+      VITE_API_URL: http://backend:3001/api
+      
+      # Configuración de producción
+      NODE_ENV: production
+      
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - crt_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+# Volúmenes persistentes
+volumes:
+  postgres_data:
+  uploads:
+
+# Red interna
+networks:
+  crt_network:
+    driver: bridge

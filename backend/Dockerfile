@@ -11,13 +11,13 @@ RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nodejs -u 1001
 
 # Copy package files
-COPY package*.json ./
+COPY backend/package*.json ./
 
 # Install dependencies (sin --only=production para evitar problemas)
 RUN npm install && npm cache clean --force
 
 # Copy source code
-COPY . .
+COPY backend/ .
 
 # Make start script executable
 RUN chmod +x start.sh
