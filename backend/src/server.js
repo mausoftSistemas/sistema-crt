@@ -22,7 +22,8 @@ app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? [
         'http://sistemacrt.oloapp.site',
-        'https://sistemacrt.oloapp.site'
+        'https://sistemacrt.oloapp.site',
+        'https://supabase-front-crt.3150ox.easypanel.host'
       ]
     : ['http://localhost:3000'],
   credentials: true
