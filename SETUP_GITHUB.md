@@ -45,9 +45,9 @@ Después de subir a GitHub, verifica:
 - [ ] Documentación en docs/ es accesible
 - [ ] GitHub Actions workflow está configurado
 
-## 🔧 Configurar Variables de Entorno para Coolify
+## 🔧 Variables de Entorno para Producción
 
-Cuando configures en Coolify, usa estas variables:
+Para deployment en producción, configura estas variables:
 
 ### Backend
 ```env
@@ -68,7 +68,7 @@ VITE_API_URL=https://tu-dominio.com/api
 
 1. **Crear repositorio en GitHub** ✅
 2. **Subir código** ✅
-3. **Configurar Coolify**
+3. **Configurar servidor de producción**
 4. **Probar deployment**
 5. **Configurar dominio personalizado**
 

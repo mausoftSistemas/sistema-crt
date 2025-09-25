@@ -20,7 +20,6 @@ Todos los cambios importantes del proyecto serán documentados en este archivo.
 - 🔒 Sistema de permisos por rol
 - 🐳 Configuración Docker para deployment
 - 📚 Documentación completa de API
-- 🚀 Configuración para Coolify
 
 ### Características Técnicas
 - **Backend**: Node.js + Express + PostgreSQL + Prisma ORM
@@ -28,7 +27,7 @@ Todos los cambios importantes del proyecto serán documentados en este archivo.
 - **Autenticación**: JWT con roles y permisos
 - **Base de datos**: PostgreSQL con Prisma
 - **Subida de archivos**: Multer para PDFs
-- **Deployment**: Docker + Coolify ready
+- **Deployment**: Docker ready
 
 ### Roles y Permisos
 - **Admin**: Acceso completo al sistema

@@ -80,32 +80,28 @@ git push origin $TAG
 
 log "✅ Tag creado y subido a GitHub"
 
-# Instrucciones para Coolify
-log "🔧 Instrucciones para completar el deployment en Coolify:"
+# Instrucciones para deployment
+log "🔧 Instrucciones para completar el deployment:"
 echo
-echo "1. Ve a tu panel de Coolify"
-echo "2. Selecciona el proyecto 'sistema-crt'"
-echo "3. Haz clic en 'Deploy' en cada servicio:"
-echo "   - PostgreSQL (si es la primera vez)"
-echo "   - Backend API"
-echo "   - Frontend"
+echo "1. En tu servidor de producción:"
+echo "2. Clona o actualiza el repositorio:"
+echo "   git clone https://github.com/mausoftSistemas/sistema-crt.git"
+echo "   git pull origin main"
 echo
-echo "4. Verifica que las variables de entorno estén configuradas:"
-echo "   Backend:"
-echo "   - DATABASE_URL"
-echo "   - JWT_SECRET"
-echo "   - NODE_ENV=production"
+echo "3. Configura las variables de entorno:"
+echo "   cp .env.example .env.prod"
+echo "   # Edita .env.prod con tus valores de producción"
 echo
-echo "   Frontend:"
-echo "   - VITE_API_URL"
+echo "4. Ejecuta el deployment:"
+echo "   docker-compose -f docker-compose.prod.yml up -d --build"
 echo
-echo "5. Una vez desplegado, ejecuta las migraciones:"
-echo "   docker exec -it sistema-crt-backend npx prisma migrate deploy"
-echo "   docker exec -it sistema-crt-backend npm run seed"
+echo "5. Ejecuta las migraciones:"
+echo "   docker-compose -f docker-compose.prod.yml exec backend npx prisma migrate deploy"
+echo "   docker-compose -f docker-compose.prod.yml exec backend npm run seed"
 echo
 echo "6. Verifica el funcionamiento:"
-echo "   - Health check: https://api-sistema-crt.tu-dominio.com/health"
-echo "   - Frontend: https://sistema-crt.tu-dominio.com"
+echo "   - Health check: https://tu-dominio.com/api/health"
+echo "   - Frontend: https://tu-dominio.com"
 echo
 
 log "🎉 Deployment preparado exitosamente!"
@@ -113,5 +109,5 @@ log "📋 Tag creado: $TAG"
 log "🔗 Repositorio: https://github.com/mausoftSistemas/sistema-crt"
 
 echo
-echo "¿Necesitas ayuda con la configuración de Coolify?"
-echo "Consulta: docs/DEPLOYMENT_COOLIFY.md"
+echo "¿Necesitas ayuda con la configuración?"
+echo "Consulta: docs/INSTALACION.md"

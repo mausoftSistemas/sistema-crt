@@ -87,18 +87,18 @@ docker-compose exec backend npx prisma migrate dev
 docker-compose exec backend npm run seed
 ```
 
-## Deployment en Coolify
+## Deployment en Producción
 
 ### 1. Preparar repositorio en GitHub
 
 - Subir código a GitHub
 - Asegurar que `.env` no esté incluido
 
-### 2. Configurar en Coolify
+### 2. Configurar servidor de producción
 
-1. **Crear nueva aplicación**
-   - Conectar repositorio GitHub
-   - Seleccionar rama `main`
+1. **Preparar servidor**
+   - Instalar Docker y Docker Compose
+   - Clonar repositorio
 
 2. **Configurar variables de entorno**
    ```

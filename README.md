@@ -24,7 +24,7 @@ Sistema web para gestión de documentación PDF y administración de empresas, e
 - **Backend**: Node.js + Express + PostgreSQL + Prisma
 - **Frontend**: React + Vite + Tailwind CSS
 - **Autenticación**: JWT
-- **Deployment**: Coolify compatible
+- **Deployment**: Docker compatible
 
 ## Estructura del Proyecto
 
@@ -71,23 +71,20 @@ npm install
 npm run dev
 ```
 
-## 🌐 Deployment en Coolify
+## 🌐 Deployment
 
-### Deployment Completamente Automático
+### Docker Compose para Producción
 
-El proyecto incluye configuración automática para Coolify:
+El proyecto incluye configuración para deployment con Docker:
 
-- ✅ **Variables dinámicas** generadas automáticamente
-- ✅ **Servicios preconfigurados** (PostgreSQL, Backend, Frontend)
-- ✅ **Dependencias automáticas** entre servicios
-- ✅ **Post-deployment automático** (migraciones + seed)
-- ✅ **Health checks** configurados
-- ✅ **SSL automático** con Let's Encrypt
+- ✅ **Servicios containerizados** (PostgreSQL, Backend, Frontend)
+- ✅ **Variables de entorno** configurables
+- ✅ **Health checks** incluidos
+- ✅ **Volúmenes persistentes** para datos y uploads
 
-**Simplemente:**
-1. Conecta tu repositorio GitHub a Coolify
-2. Coolify detecta automáticamente la configuración
-3. Todos los servicios se despliegan automáticamente
-4. ¡Listo para usar!
+**Para deployment:**
+1. Configura las variables de entorno en `.env.prod`
+2. Ejecuta `docker-compose -f docker-compose.prod.yml up -d`
+3. Configura tu proxy reverso (nginx, traefik, etc.)
 
-Ver guía completa: [docs/DEPLOYMENT_COOLIFY.md](docs/DEPLOYMENT_COOLIFY.md)
+Ver guía completa: [docs/INSTALACION.md](docs/INSTALACION.md)

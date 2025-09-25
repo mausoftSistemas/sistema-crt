@@ -1,4 +1,4 @@
-name: Deploy to Coolify
+name: CI/CD Pipeline
 
 on:
   push:
@@ -61,13 +61,13 @@ jobs:
       env:
         VITE_API_URL: http://localhost:3001/api
 
-  deploy:
+  build:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     
     steps:
-    - name: Deploy to Coolify
+    - name: Build completed
       run: |
-        echo "Deployment will be handled by Coolify webhook"
-        # Coolify se encarga del deployment automático cuando detecta cambios en main
+        echo "Build and tests completed successfully"
+        echo "Ready for deployment to production server"

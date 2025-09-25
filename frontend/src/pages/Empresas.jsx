@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react'
-import { Plus, Building2, MapPin, Phone, Mail } from 'lucide-react'
+import { Plus, Building2, MapPin, Phone, Mail, Eye, Edit, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import toast from 'react-hot-toast'
+import EmpresaModal from '../components/EmpresaModal'
 
 const Empresas = () => {
   const { hasRole } = useAuth()
+  const navigate = useNavigate()
   const [empresas, setEmpresas] = useState([])
   const [loading, setLoading] = useState(true)
+  const [showModal, setShowModal] = useState(false)
+  const [selectedEmpresa, setSelectedEmpresa] = useState(null)
 
   useEffect(() => {
     fetchEmpresas()
@@ -23,6 +28,46 @@ const Empresas = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleCreateEmpresa = () => {
+    setSelectedEmpresa(null)
+    setShowModal(true)
+  }
+
+  const handleEditEmpresa = (empresa) => {
+    setSelectedEmpresa(empresa)
+    setShowModal(true)
+  }
+
+  const handleDeleteEmpresa = async (empresa) => {
+    if (!window.confirm(`¿Estás seguro de que deseas eliminar la empresa "${empresa.nombre}"?`)) {
+      return
+    }
+
+    try {
+      await api.delete(`/empresas/${empresa.id}`)
+      toast.success('Empresa eliminada correctamente')
+      fetchEmpresas()
+    } catch (error) {
+      console.error('Error eliminando empresa:', error)
+      toast.error('Error al eliminar empresa')
+    }
+  }
+
+  const handleViewEmpresa = (empresa) => {
+    navigate(`/empresas/${empresa.id}`)
+  }
+
+  const handleModalClose = () => {
+    setShowModal(false)
+    setSelectedEmpresa(null)
+  }
+
+  const handleModalSuccess = () => {
+    setShowModal(false)
+    setSelectedEmpresa(null)
+    fetchEmpresas()
   }
 
   if (loading) {
@@ -46,7 +91,10 @@ const Empresas = () => {
           </p>
         </div>
         {hasRole(['ADMIN', 'TECNICO_ADMIN']) && (
-          <button className="btn-primary flex items-center">
+          <button 
+            onClick={handleCreateEmpresa}
+            className="btn-primary flex items-center"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Nueva Empresa
           </button>
@@ -100,13 +148,44 @@ const Empresas = () => {
             </div>
 
             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-dark-700">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500 dark:text-gray-400">
-                  Establecimientos: {empresa._count?.establecimientos || 0}
-                </span>
-                <span className="text-gray-500 dark:text-gray-400">
-                  Documentos: {empresa._count?.documentos || 0}
-                </span>
+              <div className="flex justify-between items-center">
+                <div className="flex text-sm space-x-4">
+                  <span className="text-gray-500 dark:text-gray-400">
+                    Establecimientos: {empresa._count?.establecimientos || 0}
+                  </span>
+                  <span className="text-gray-500 dark:text-gray-400">
+                    Documentos: {empresa._count?.documentos || 0}
+                  </span>
+                </div>
+                
+                {/* Botones de acción */}
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleViewEmpresa(empresa)}
+                    className="p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                    title="Ver detalles"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </button>
+                  {hasRole(['ADMIN', 'TECNICO_ADMIN']) && (
+                    <>
+                      <button
+                        onClick={() => handleEditEmpresa(empresa)}
+                        className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        title="Editar empresa"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEmpresa(empresa)}
+                        className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                        title="Eliminar empresa"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -123,6 +202,15 @@ const Empresas = () => {
             Comienza creando una nueva empresa.
           </p>
         </div>
+      )}
+
+      {/* Modal para crear/editar empresa */}
+      {showModal && (
+        <EmpresaModal
+          empresa={selectedEmpresa}
+          onClose={handleModalClose}
+          onSuccess={handleModalSuccess}
+        />
       )}
     </div>
   )
